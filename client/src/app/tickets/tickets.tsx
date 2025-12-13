@@ -8,10 +8,10 @@ export interface TicketsProps {
 }
 
 export function Tickets() {
-  const { fetchTickets, tickets } = useGlobalStore();
+  const { tickets, fetchTickets, fetchUsers } = useGlobalStore();
 
   useEffect(() => {
-    fetchTickets();
+    Promise.all([fetchTickets(), fetchUsers()]);
   }, []);
 
   return (
