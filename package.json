@@ -10,6 +10,7 @@
     "@nestjs/common": "9.2.1",
     "@nestjs/core": "9.2.1",
     "@nestjs/platform-express": "9.2.1",
+    "immer": "^11.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router": "^6.3.0",
