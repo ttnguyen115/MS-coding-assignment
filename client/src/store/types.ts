@@ -5,6 +5,7 @@ type TicketState = {
   activeTicket: Ticket | null;
   ticketIds: Ticket["id"][];
   isLoadingTickets: boolean;
+  isUpdatingTicket: boolean;
   ticketsError: string | null;
 };
 
@@ -14,7 +15,10 @@ type TicketActions = {
 
 type TicketAsyncActions = {
   fetchTickets: () => Promise<void>;
-  fetchTicketById: (ticketId: Ticket["id"]) => Promise<void>;
+  fetchTicketById: (
+    ticketId: Ticket["id"],
+    skipLoading?: boolean
+  ) => Promise<void>;
   createTicket: (description: Ticket["description"]) => Promise<void>;
   assignTicket: (ticketId: Ticket["id"], userId: User["id"]) => Promise<void>;
   unassignTicket: (ticketId: Ticket["id"]) => Promise<void>;

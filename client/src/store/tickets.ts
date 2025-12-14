@@ -14,6 +14,7 @@ export const createTicketSlice: StateCreator<
   activeTicket: null,
   ticketIds: [],
   isLoadingTickets: false,
+  isUpdatingTicket: false,
   ticketsError: null,
 
   setActiveTicket: (ticket: Ticket) => {
@@ -50,8 +51,10 @@ export const createTicketSlice: StateCreator<
     }
   },
 
-  fetchTicketById: async (ticketId: Ticket["id"]) => {
-    set({ isLoadingTickets: true, ticketsError: null });
+  fetchTicketById: async (ticketId: Ticket["id"], skipLoading = false) => {
+    if (!skipLoading) {
+      set({ isLoadingTickets: true, ticketsError: null });
+    }
 
     try {
       const response = await fetch(`/api/tickets/${ticketId}`);
@@ -61,16 +64,26 @@ export const createTicketSlice: StateCreator<
       }
 
       const ticket: Ticket = await response.json();
-      set({
-        activeTicket: {
+      set((state) => {
+        state.activeTicket = {
           ...ticket,
           description: sanitizeDescription(ticket.description),
-        },
+        };
+
+        // update in tickets list if it exists
+        if (state.tickets[ticketId]) {
+          state.tickets[ticketId] = {
+            ...ticket,
+            description: sanitizeDescription(ticket.description),
+          };
+        }
       });
     } catch (error: any) {
       set({ ticketsError: error.message });
     } finally {
-      set({ isLoadingTickets: false });
+      if (!skipLoading) {
+        set({ isLoadingTickets: false });
+      }
     }
   },
 
@@ -110,7 +123,7 @@ export const createTicketSlice: StateCreator<
   },
 
   assignTicket: async (ticketId: Ticket["id"], userId: User["id"]) => {
-    set({ isLoadingTickets: true, ticketsError: null });
+    set({ isUpdatingTicket: true, ticketsError: null });
 
     try {
       const response = await fetch(
@@ -126,24 +139,21 @@ export const createTicketSlice: StateCreator<
         );
       }
 
-      get().fetchTickets();
+      await get().fetchTicketById(ticketId, true);
     } catch (error: any) {
       set({ ticketsError: error.message });
     } finally {
-      set({ isLoadingTickets: false });
+      set({ isUpdatingTicket: false });
     }
   },
 
   unassignTicket: async (ticketId: Ticket["id"]) => {
-    set({ isLoadingTickets: true, ticketsError: null });
+    set({ isUpdatingTicket: true, ticketsError: null });
 
     try {
-      const response = await fetch(
-        `/api/tickets/${ticketId}/unassign`,
-        {
-          method: "PUT",
-        }
-      );
+      const response = await fetch(`/api/tickets/${ticketId}/unassign`, {
+        method: "PUT",
+      });
 
       if (!response.ok) {
         throw new Error(
@@ -151,27 +161,23 @@ export const createTicketSlice: StateCreator<
         );
       }
 
-      get().fetchTickets();
+      await get().fetchTicketById(ticketId, true);
     } catch (error: any) {
       set({ ticketsError: error.message });
     } finally {
-      set({ isLoadingTickets: false });
+      set({ isUpdatingTicket: false });
     }
   },
 
-  updateTicketStatus: async (
-    ticketId: Ticket["id"],
-    completed: Ticket["completed"]
-  ) => {
-    set({ isLoadingTickets: true, ticketsError: null });
+  updateTicketStatus: async (ticketId: Ticket["id"], checked: boolean) => {
+    const method = checked ? "PUT" : "DELETE";
+
+    set({ isUpdatingTicket: true, ticketsError: null });
 
     try {
-      const response = await fetch(
-        `/api/tickets/${ticketId}/complete`,
-        {
-          method: "PUT",
-        }
-      );
+      const response = await fetch(`/api/tickets/${ticketId}/complete`, {
+        method,
+      });
 
       if (!response.ok) {
         throw new Error(
@@ -179,11 +185,11 @@ export const createTicketSlice: StateCreator<
         );
       }
 
-      get().fetchTickets();
+      await get().fetchTicketById(ticketId, true);
     } catch (error: any) {
       set({ ticketsError: error.message });
     } finally {
-      set({ isLoadingTickets: false });
+      set({ isUpdatingTicket: false });
     }
   },
 });
