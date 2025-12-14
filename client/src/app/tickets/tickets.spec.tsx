@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import useGlobalStore from "client/src/store";
 
-import Tickets from "./tickets";
+import Tickets from ".";
 
 jest.mock("client/src/store");
 
