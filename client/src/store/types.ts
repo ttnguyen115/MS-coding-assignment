@@ -13,15 +13,15 @@ type TicketActions = {
 };
 
 type TicketAsyncActions = {
-  fetchTickets: () => void;
-  fetchTicketById: (ticketId: Ticket["id"]) => void;
-  createTicket: (description: Ticket["description"]) => void;
-  assignTicket: (ticketId: Ticket["id"], userId: User["id"]) => void;
-  unassignTicket: (ticketId: Ticket["id"]) => void;
+  fetchTickets: () => Promise<void>;
+  fetchTicketById: (ticketId: Ticket["id"]) => Promise<void>;
+  createTicket: (description: Ticket["description"]) => Promise<void>;
+  assignTicket: (ticketId: Ticket["id"], userId: User["id"]) => Promise<void>;
+  unassignTicket: (ticketId: Ticket["id"]) => Promise<void>;
   updateTicketStatus: (
     ticketId: Ticket["id"],
     completed: Ticket["completed"]
-  ) => void;
+  ) => Promise<void>;
 };
 
 export type TicketSlice = TicketState & TicketActions & TicketAsyncActions;
@@ -39,8 +39,8 @@ type UserActions = {
 };
 
 type UserAsyncActions = {
-  fetchUsers: () => void;
-  fetchUserById: (userId: User["id"]) => void;
+  fetchUsers: () => Promise<void>;
+  fetchUserById: (userId: User["id"]) => Promise<void>;
 };
 
 export type UserSlice = UserState & UserActions & UserAsyncActions;

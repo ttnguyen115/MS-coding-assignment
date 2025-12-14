@@ -1,4 +1,5 @@
 import { Ticket } from "@acme/shared-models";
+import AddTicketModal from "client/src/components/AddTicketModal";
 import Button from "client/src/components/Button";
 import NotFound from "client/src/components/NotFound";
 import TicketCard from "client/src/components/TicketCard";
@@ -21,6 +22,7 @@ function Tickets() {
     isLoadingTickets,
     fetchTickets,
     fetchUsers,
+    createTicket,
   } = useGlobalStore(
     useShallow((state) => ({
       tickets: state.tickets,
@@ -29,9 +31,11 @@ function Tickets() {
       isLoadingTickets: state.isLoadingTickets,
       fetchTickets: state.fetchTickets,
       fetchUsers: state.fetchUsers,
+      createTicket: state.createTicket,
     }))
   );
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const filteredTicketIds = useMemo(
     () =>
@@ -53,18 +57,36 @@ function Tickets() {
     setFilterStatus(status);
   };
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCreateTicket = async (description: string) => {
+    await createTicket(description);
+  };
+
   const renderFilterGroup = () => (
     <div className={styles["filterGroup"]}>
-      {(["all", "completed", "incomplete"] as FilterStatus[]).map((status, index) => (
-        <Button
-          key={`Tickets-${status}-${index}`}
-          isActive={filterStatus === status}
-          onClick={handleChangeFilter(status)}
-        >
-          {status.charAt(0).toUpperCase() + status.slice(1)}
-        </Button>
-      ))}
+      {(["all", "completed", "incomplete"] as FilterStatus[]).map(
+        (status, index) => (
+          <Button
+            key={`Tickets-${status}-${index}`}
+            isActive={filterStatus === status}
+            onClick={handleChangeFilter(status)}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </Button>
+        )
+      )}
     </div>
+  );
+
+  const renderAddButton = () => (
+    <Button onClick={handleOpenModal}>+ Add Ticket</Button>
   );
 
   const renderContent = () => {
@@ -119,9 +141,19 @@ function Tickets() {
     <div className={styles["container"]}>
       <div className={styles["header"]}>
         <h1 className={styles["title"]}>Tickets</h1>
-        {renderFilterGroup()}
+        <div className={styles["buttonRow"]}>
+          {renderFilterGroup()}
+          {renderAddButton()}
+        </div>
       </div>
       {renderContent()}
+
+      <AddTicketModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleCreateTicket}
+        isLoading={isLoadingTickets}
+      />
     </div>
   );
 }

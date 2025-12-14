@@ -22,19 +22,6 @@ export function validateDescription(description: string): {
     return { isValid: false, error: "Description is required" };
   }
 
-  const sanitized = sanitizeDescription(description);
-
-  if (sanitized.length === 0) {
-    return { isValid: false, error: "Description cannot be empty" };
-  }
-
-  if (sanitized.length > 500) {
-    return {
-      isValid: false,
-      error: "Description is too long (max 500 characters)",
-    };
-  }
-
   const suspiciousPatterns = [
     /<script/i,
     /javascript:/i,
@@ -51,6 +38,19 @@ export function validateDescription(description: string): {
         error: "Description contains potentially dangerous content",
       };
     }
+  }
+
+  const sanitized = sanitizeDescription(description);
+
+  if (sanitized.length === 0) {
+    return { isValid: false, error: "Description cannot be empty" };
+  }
+
+  if (sanitized.length > 500) {
+    return {
+      isValid: false,
+      error: "Description is too long (max 500 characters)",
+    };
   }
 
   return { isValid: true };
