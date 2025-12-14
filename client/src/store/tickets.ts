@@ -1,6 +1,6 @@
 import { type StateCreator } from "zustand";
 
-import { Ticket } from "@acme/shared-models";
+import { Ticket, User } from "@acme/shared-models";
 import type { GlobalAppStore, TicketSlice } from "./types";
 
 export const createTicketSlice: StateCreator<
@@ -10,9 +10,14 @@ export const createTicketSlice: StateCreator<
   TicketSlice
 > = (set) => ({
   tickets: {},
+  activeTicket: null,
   ticketIds: [],
   isLoadingTickets: false,
   ticketsError: null,
+
+  setActiveTicket: (ticket: Ticket) => {
+    set({ activeTicket: ticket });
+  },
 
   fetchTickets: async () => {
     set({ isLoadingTickets: true, ticketsError: null });
@@ -40,4 +45,34 @@ export const createTicketSlice: StateCreator<
       set({ isLoadingTickets: false });
     }
   },
+
+  fetchTicketById: async (ticketId: Ticket["id"]) => {
+    set({ isLoadingTickets: true, ticketsError: null });
+
+    try {
+      const response = await fetch(`/api/tickets/${ticketId}`);
+
+      if (!response.ok) {
+        throw new Error(`Cannot fetch ticket with ID: ${response.statusText}`);
+      }
+
+      const ticket: Ticket = await response.json();
+      set({ activeTicket: ticket });
+    } catch (error: any) {
+      set({ ticketsError: error.message });
+    } finally {
+      set({ isLoadingTickets: false });
+    }
+  },
+
+  createTicket: async (description: Ticket["description"]) => {},
+
+  assignTicket: async (ticketId: Ticket["id"], userId: User["id"]) => {},
+
+  unassignTicket: async (ticketId: Ticket["id"]) => {},
+
+  updateTicketStatus: async (
+    ticketId: Ticket["id"],
+    completed: Ticket["completed"]
+  ) => {},
 });

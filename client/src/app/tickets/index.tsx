@@ -1,5 +1,6 @@
 import { Ticket } from "@acme/shared-models";
 import Button from "client/src/components/Button";
+import NotFound from "client/src/components/NotFound";
 import TicketCard from "client/src/components/TicketCard";
 import useGlobalStore from "client/src/store";
 import { useEffect, useMemo, useState } from "react";
@@ -13,32 +14,40 @@ export interface TicketsProps {
 type FilterStatus = "all" | "completed" | "incomplete";
 
 function Tickets() {
-  const { tickets, users, ticketIds, fetchTickets, fetchUsers, isLoadingTickets } =
-    useGlobalStore(
-      useShallow((state) => ({
-        tickets: state.tickets,
-        users: state.users,
-        ticketIds: state.ticketIds,
-        fetchTickets: state.fetchTickets,
-        fetchUsers: state.fetchUsers,
-        isLoadingTickets: state.isLoadingTickets,
-      }))
-    );
+  const {
+    tickets,
+    users,
+    ticketIds,
+    isLoadingTickets,
+    fetchTickets,
+    fetchUsers,
+  } = useGlobalStore(
+    useShallow((state) => ({
+      tickets: state.tickets,
+      users: state.users,
+      ticketIds: state.ticketIds,
+      isLoadingTickets: state.isLoadingTickets,
+      fetchTickets: state.fetchTickets,
+      fetchUsers: state.fetchUsers,
+    }))
+  );
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
 
-  const filteredTicketIds = useMemo(() => {
-    return ticketIds.filter((id) => {
-      const ticket = tickets[id];
+  const filteredTicketIds = useMemo(
+    () =>
+      ticketIds.filter((id) => {
+        const ticket = tickets[id];
 
-      if (!ticket) return false;
+        if (!ticket) return false;
 
-      if (filterStatus === "all") return true;
-      if (filterStatus === "completed") return ticket.completed === true;
-      if (filterStatus === "incomplete") return ticket.completed === false;
+        if (filterStatus === "all") return true;
+        if (filterStatus === "completed") return ticket.completed === true;
+        if (filterStatus === "incomplete") return ticket.completed === false;
 
-      return true;
-    });
-  }, [ticketIds, tickets, filterStatus]);
+        return true;
+      }),
+    [ticketIds, tickets, filterStatus]
+  );
 
   const handleChangeFilter = (status: FilterStatus) => () => {
     setFilterStatus(status);
@@ -46,24 +55,15 @@ function Tickets() {
 
   const renderFilterGroup = () => (
     <div className={styles["filterGroup"]}>
-      <Button
-        isActive={filterStatus === "all"}
-        onClick={handleChangeFilter("all")}
-      >
-        All
-      </Button>
-      <Button
-        isActive={filterStatus === "completed"}
-        onClick={handleChangeFilter("completed")}
-      >
-        Completed
-      </Button>
-      <Button
-        isActive={filterStatus === "incomplete"}
-        onClick={handleChangeFilter("incomplete")}
-      >
-        Incomplete
-      </Button>
+      {(["all", "completed", "incomplete"] as FilterStatus[]).map((status, index) => (
+        <Button
+          key={`Tickets-${status}-${index}`}
+          isActive={filterStatus === status}
+          onClick={handleChangeFilter(status)}
+        >
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </Button>
+      ))}
     </div>
   );
 
@@ -80,9 +80,14 @@ function Tickets() {
 
     if (filteredTicketIds.length === 0) {
       return (
-        <div className={styles["emptyState"]}>
-          <p>No tickets available</p>
-        </div>
+        <NotFound
+          title="No tickets found"
+          message={
+            filterStatus === "all"
+              ? "No tickets available"
+              : `No ${filterStatus} tickets`
+          }
+        />
       );
     }
 

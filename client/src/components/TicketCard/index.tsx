@@ -1,4 +1,5 @@
 import { Ticket } from "@acme/shared-models";
+import { useNavigate } from "react-router-dom";
 import skeletonStyles from "./skeleton.module.css";
 import styles from "./ticketCard.module.css";
 
@@ -8,8 +9,14 @@ export interface TicketCardProps {
 }
 
 function TicketCard({ ticket, assigneeName }: TicketCardProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/${ticket.id}`);
+  };
+
   return (
-    <div className={styles["ticketCard"]}>
+    <div className={styles["ticketCard"]} onClick={handleClick}>
       <div className={styles["ticketHeader"]}>
         <span className={styles["ticketId"]}>#{ticket.id}</span>
         <span

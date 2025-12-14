@@ -1,0 +1,19 @@
+.notFound {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  border: 2px dashed #e5e7eb;
+}
+
+.notFound h2 {
+  font-size: 1.5rem;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+}
+
+.notFound p {
+  font-size: 1rem;
+  color: #9ca3af;
+  margin: 0;
+}

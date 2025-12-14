@@ -12,7 +12,8 @@ const useGlobalStore = create<GlobalAppStore>()(
     immer((...args) => ({
       ...createTicketSlice(...args),
       ...createUserSlice(...args),
-    }))
+    })),
+    { name: "TicketStore" }
   )
 );
 
