@@ -39,7 +39,12 @@ const defaultStoreState = {
 describe("TicketDetail", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseGlobalStore.mockReturnValue(defaultStoreState);
+    mockUseGlobalStore.mockImplementation((selector: any) => {
+      if (typeof selector === 'function') {
+        return selector(defaultStoreState);
+      }
+      return defaultStoreState;
+    });
   });
 
   it("should render successfully", () => {
@@ -57,7 +62,7 @@ describe("TicketDetail", () => {
     };
     const user = { id: 2, name: "Trung Nguyen" };
 
-    mockUseGlobalStore.mockReturnValue({
+    const testState = {
       ...defaultStoreState,
       tickets: {
         1: ticket,
@@ -67,6 +72,13 @@ describe("TicketDetail", () => {
         2: user,
       },
       activeUser: user,
+    };
+
+    mockUseGlobalStore.mockImplementation((selector: any) => {
+      if (typeof selector === 'function') {
+        return selector(testState);
+      }
+      return testState;
     });
 
     render(TestComponent());
@@ -77,11 +89,18 @@ describe("TicketDetail", () => {
   });
 
   it("should display Not Found when ticket does not exist", () => {
-    mockUseGlobalStore.mockReturnValue({
+    const testState = {
       ...defaultStoreState,
       activeTicket: null,
       isLoadingTickets: false,
       ticketsError: "Ticket not found",
+    };
+
+    mockUseGlobalStore.mockImplementation((selector: any) => {
+      if (typeof selector === 'function') {
+        return selector(testState);
+      }
+      return testState;
     });
 
     render(TestComponent(["/1000"]));

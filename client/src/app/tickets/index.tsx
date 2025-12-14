@@ -5,7 +5,6 @@ import NotFound from "client/src/components/NotFound";
 import TicketCard from "client/src/components/TicketCard";
 import useGlobalStore from "client/src/store";
 import { useEffect, useMemo, useState } from "react";
-import { useShallow } from "zustand/shallow";
 import styles from "./tickets.module.css";
 
 export interface TicketsProps {
@@ -15,25 +14,15 @@ export interface TicketsProps {
 type FilterStatus = "all" | "completed" | "incomplete";
 
 function Tickets() {
-  const {
-    tickets,
-    users,
-    ticketIds,
-    isLoadingTickets,
-    fetchTickets,
-    fetchUsers,
-    createTicket,
-  } = useGlobalStore(
-    useShallow((state) => ({
-      tickets: state.tickets,
-      users: state.users,
-      ticketIds: state.ticketIds,
-      isLoadingTickets: state.isLoadingTickets,
-      fetchTickets: state.fetchTickets,
-      fetchUsers: state.fetchUsers,
-      createTicket: state.createTicket,
-    }))
-  );
+  const tickets = useGlobalStore((state) => state.tickets);
+  const users = useGlobalStore((state) => state.users);
+  const ticketIds = useGlobalStore((state) => state.ticketIds);
+  const isLoadingTickets = useGlobalStore((state) => state.isLoadingTickets);
+
+  const fetchTickets = useGlobalStore((state) => state.fetchTickets);
+  const fetchUsers = useGlobalStore((state) => state.fetchUsers);
+  const createTicket = useGlobalStore((state) => state.createTicket);
+
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
 

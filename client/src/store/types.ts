@@ -5,7 +5,7 @@ type TicketState = {
   activeTicket: Ticket | null;
   ticketIds: Ticket["id"][];
   isLoadingTickets: boolean;
-  isUpdatingTicket: boolean;
+  isUpdatingTicket: { ticketId: number; field: 'status' | 'assignee' } | null;
   ticketsError: string | null;
 };
 

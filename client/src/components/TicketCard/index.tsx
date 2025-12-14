@@ -11,10 +11,19 @@ export interface TicketCardProps {
 
 function TicketCard({ ticket, assigneeName }: TicketCardProps) {
   const navigate = useNavigate();
-  
+
+  const users = useGlobalStore((state) => state.users);
+  const userIds = useGlobalStore((state) => state.userIds);
+  const isUpdatingTicket = useGlobalStore((state) => state.isUpdatingTicket);
+
   const updateTicketStatus = useGlobalStore(
     (state) => state.updateTicketStatus
   );
+  const assignTicket = useGlobalStore((state) => state.assignTicket);
+  const unassignTicket = useGlobalStore((state) => state.unassignTicket);
+
+  const isUpdatingStatus = isUpdatingTicket?.ticketId === ticket.id && isUpdatingTicket?.field === 'status';
+  const isUpdatingAssignee = isUpdatingTicket?.ticketId === ticket.id && isUpdatingTicket?.field === 'assignee';
 
   const handleClick = () => {
     navigate(`/${ticket.id}`);
@@ -25,6 +34,20 @@ function TicketCard({ ticket, assigneeName }: TicketCardProps) {
   ) => {
     e.stopPropagation();
     await updateTicketStatus(ticket.id, e.target.checked);
+  };
+
+  const handleAssigneeChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    e.stopPropagation();
+    const userId = parseInt(e.target.value);
+
+    // "Unassigned" option
+    if (userId === 0) {
+      await unassignTicket(ticket.id);
+    } else {
+      await assignTicket(ticket.id, userId);
+    }
   };
 
   return (
@@ -40,17 +63,39 @@ function TicketCard({ ticket, assigneeName }: TicketCardProps) {
             checked={ticket.completed}
             onChange={handleCheckboxChange}
             className={styles["checkbox"]}
+            disabled={isUpdatingStatus}
           />
           <span className={styles["checkboxLabel"]}>
             {ticket.completed ? "Completed" : "Incomplete"}
           </span>
+          {isUpdatingStatus && (
+            <span className={styles["spinner"]}></span>
+          )}
         </label>
       </div>
       <p className={styles["ticketDescription"]}>{ticket.description}</p>
       <div className={styles["ticketFooter"]}>
-        <div className={styles["assignee"]}>
+        <div
+          className={styles["assignee"]}
+          onClick={(e) => e.stopPropagation()}
+        >
           <span className={styles["assigneeLabel"]}>Assignee:</span>
-          <span className={styles["assigneeName"]}>{assigneeName}</span>
+          <select
+            value={ticket.assigneeId || 0}
+            onChange={handleAssigneeChange}
+            className={styles["assigneeSelect"]}
+            disabled={isUpdatingAssignee}
+          >
+            <option value={0}>Unassigned</option>
+            {userIds.map((userId) => (
+              <option key={userId} value={userId}>
+                {users[userId]?.name}
+              </option>
+            ))}
+          </select>
+          {isUpdatingAssignee && (
+            <span className={styles["spinner"]}></span>
+          )}
         </div>
       </div>
     </div>

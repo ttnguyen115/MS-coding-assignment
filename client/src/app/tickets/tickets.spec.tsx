@@ -21,14 +21,25 @@ const defaultStoreState = {
   tickets: {},
   ticketIds: [],
   users: {},
+  userIds: [],
+  isUpdatingTicket: null,
+  updateTicketStatus: jest.fn(),
+  assignTicket: jest.fn(),
+  unassignTicket: jest.fn(),
   fetchTickets: jest.fn(),
   fetchUsers: jest.fn(),
+  createTicket: jest.fn(),
 };
 
 describe("Tickets", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseGlobalStore.mockReturnValue(defaultStoreState);
+    mockUseGlobalStore.mockImplementation((selector: any) => {
+      if (typeof selector === 'function') {
+        return selector(defaultStoreState);
+      }
+      return defaultStoreState;
+    });
   });
 
   it("should render successfully", () => {
@@ -42,7 +53,7 @@ describe("Tickets", () => {
   });
 
   it("should render tickets with assignee names", () => {
-    mockUseGlobalStore.mockReturnValue({
+    const testState = {
       ...defaultStoreState,
       tickets: {
         1: { id: 1, description: "Fix bug", assigneeId: 1, completed: false },
@@ -57,20 +68,31 @@ describe("Tickets", () => {
       users: {
         1: { id: 1, name: "Trung Nguyen" },
       },
+      userIds: [1],
+    };
+
+    mockUseGlobalStore.mockImplementation((selector: any) => {
+      if (typeof selector === 'function') {
+        return selector(testState);
+      }
+      return testState;
     });
 
     render(TestComponent);
 
     expect(screen.getByText(/Fix bug/)).toBeInTheDocument();
     expect(screen.getByText(/Add feature/)).toBeInTheDocument();
-    expect(screen.getByText(/Trung Nguyen/)).toBeInTheDocument();
-    expect(screen.getByText(/Unassigned/)).toBeInTheDocument();
+    
+    const selectBoxes = screen.getAllByRole('combobox');
+    expect(selectBoxes.length).toBeGreaterThan(0);
+    
+    expect(screen.getAllByText(/Unassigned/).length).toBeGreaterThan(0);
   });
 
   it("should filter tickets by completed status", async () => {
     const user = userEvent.setup();
 
-    mockUseGlobalStore.mockReturnValue({
+    const testState = {
       ...defaultStoreState,
       tickets: {
         1: {
@@ -88,6 +110,14 @@ describe("Tickets", () => {
       },
       ticketIds: [1, 2],
       users: {},
+      userIds: [],
+    };
+
+    mockUseGlobalStore.mockImplementation((selector: any) => {
+      if (typeof selector === 'function') {
+        return selector(testState);
+      }
+      return testState;
     });
 
     render(TestComponent);
@@ -104,18 +134,29 @@ describe("Tickets", () => {
     });
   });
 
-  it("should display 'Unknown' for missing user", () => {
-    mockUseGlobalStore.mockReturnValue({
+  it("should display select box for missing user", () => {
+    const testState = {
       ...defaultStoreState,
       tickets: {
         1: { id: 1, description: "Fix bug", assigneeId: 999, completed: false },
       },
       ticketIds: [1],
       users: {},
+      userIds: [],
+    };
+
+    mockUseGlobalStore.mockImplementation((selector: any) => {
+      if (typeof selector === 'function') {
+        return selector(testState);
+      }
+      return testState;
     });
 
     render(TestComponent);
 
-    expect(screen.getByText(/Unknown/)).toBeInTheDocument();
+    // Should show a select box with Unassigned option
+    const selectBox = screen.getByRole('combobox');
+    expect(selectBox).toBeInTheDocument();
+    expect(screen.getByText(/Fix bug/)).toBeInTheDocument();
   });
 });

@@ -2,7 +2,6 @@ import NotFound from "client/src/components/NotFound";
 import useGlobalStore from "client/src/store";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useShallow } from "zustand/shallow";
 import styles from "./ticketDetails.module.css";
 
 function TicketDetailLayout({ children }: { children: React.ReactNode }) {
@@ -51,31 +50,17 @@ function TicketDetailSkeleton() {
 function TicketDetail() {
   const { id } = useParams<{ id: string }>();
 
-  const {
-    tickets,
-    users,
-    activeTicket,
-    activeUser,
-    isLoadingTickets,
-    ticketsError,
-    setActiveTicket,
-    setActiveUser,
-    fetchTicketById,
-    fetchUserById,
-  } = useGlobalStore(
-    useShallow((state) => ({
-      tickets: state.tickets,
-      users: state.users,
-      activeTicket: state.activeTicket,
-      activeUser: state.activeUser,
-      isLoadingTickets: state.isLoadingTickets,
-      ticketsError: state.ticketsError,
-      setActiveTicket: state.setActiveTicket,
-      setActiveUser: state.setActiveUser,
-      fetchTicketById: state.fetchTicketById,
-      fetchUserById: state.fetchUserById,
-    }))
-  );
+  const tickets = useGlobalStore((state) => state.tickets);
+  const users = useGlobalStore((state) => state.users);
+  const activeTicket = useGlobalStore((state) => state.activeTicket);
+  const activeUser = useGlobalStore((state) => state.activeUser);
+  const isLoadingTickets = useGlobalStore((state) => state.isLoadingTickets);
+  const ticketsError = useGlobalStore((state) => state.ticketsError);
+
+  const setActiveTicket = useGlobalStore((state) => state.setActiveTicket);
+  const setActiveUser = useGlobalStore((state) => state.setActiveUser);
+  const fetchTicketById = useGlobalStore((state) => state.fetchTicketById);
+  const fetchUserById = useGlobalStore((state) => state.fetchUserById);
 
   useEffect(() => {
     let isCurrent = true;
@@ -135,7 +120,7 @@ function TicketDetail() {
     );
   }
 
-  // whether it has fetching errors or has no ticket found 
+  // if there are fetching errors or no ticket found
   if (ticketsError || !activeTicket) {
     return (
       <TicketDetailLayout>
