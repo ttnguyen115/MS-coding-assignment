@@ -1,6 +1,7 @@
 import { type StateCreator } from "zustand";
 
 import { Ticket, User } from "@acme/shared-models";
+import { sanitizeDescription, validateDescription } from "../utils/sanitize";
 import type { GlobalAppStore, TicketSlice } from "./types";
 
 export const createTicketSlice: StateCreator<
@@ -8,7 +9,7 @@ export const createTicketSlice: StateCreator<
   [["zustand/immer", never]],
   [],
   TicketSlice
-> = (set) => ({
+> = (set, get) => ({
   tickets: {},
   activeTicket: null,
   ticketIds: [],
@@ -36,7 +37,10 @@ export const createTicketSlice: StateCreator<
 
         tickets.forEach((ticket) => {
           state.ticketIds.push(ticket.id);
-          state.tickets[ticket.id] = ticket;
+          state.tickets[ticket.id] = {
+            ...ticket,
+            description: sanitizeDescription(ticket.description),
+          };
         });
       });
     } catch (error: any) {
@@ -57,7 +61,12 @@ export const createTicketSlice: StateCreator<
       }
 
       const ticket: Ticket = await response.json();
-      set({ activeTicket: ticket });
+      set({
+        activeTicket: {
+          ...ticket,
+          description: sanitizeDescription(ticket.description),
+        },
+      });
     } catch (error: any) {
       set({ ticketsError: error.message });
     } finally {
@@ -65,14 +74,116 @@ export const createTicketSlice: StateCreator<
     }
   },
 
-  createTicket: async (description: Ticket["description"]) => {},
+  createTicket: async (description: Ticket["description"]) => {
+    set({ isLoadingTickets: true, ticketsError: null });
 
-  assignTicket: async (ticketId: Ticket["id"], userId: User["id"]) => {},
+    try {
+      const validation = validateDescription(description);
+      if (!validation.isValid) {
+        throw new Error(validation.error);
+      }
 
-  unassignTicket: async (ticketId: Ticket["id"]) => {},
+      const sanitizedDescription = sanitizeDescription(description);
+
+      const response = await fetch("/api/tickets/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          description: sanitizedDescription,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Cannot create ticket with description: ${response.statusText}`
+        );
+      }
+
+      get().fetchTickets();
+    } catch (error: any) {
+      set({ ticketsError: error.message });
+    } finally {
+      set({ isLoadingTickets: false });
+    }
+  },
+
+  assignTicket: async (ticketId: Ticket["id"], userId: User["id"]) => {
+    set({ isLoadingTickets: true, ticketsError: null });
+
+    try {
+      const response = await fetch(
+        `/api/tickets/${ticketId}/assign/${userId}`,
+        {
+          method: "PUT",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Cannot assign ticket ${ticketId} for user ${userId}: ${response.statusText}`
+        );
+      }
+
+      get().fetchTickets();
+    } catch (error: any) {
+      set({ ticketsError: error.message });
+    } finally {
+      set({ isLoadingTickets: false });
+    }
+  },
+
+  unassignTicket: async (ticketId: Ticket["id"]) => {
+    set({ isLoadingTickets: true, ticketsError: null });
+
+    try {
+      const response = await fetch(
+        `/api/tickets/${ticketId}/unassign`,
+        {
+          method: "PUT",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Cannot unassign ticket ${ticketId}: ${response.statusText}`
+        );
+      }
+
+      get().fetchTickets();
+    } catch (error: any) {
+      set({ ticketsError: error.message });
+    } finally {
+      set({ isLoadingTickets: false });
+    }
+  },
 
   updateTicketStatus: async (
     ticketId: Ticket["id"],
     completed: Ticket["completed"]
-  ) => {},
+  ) => {
+    set({ isLoadingTickets: true, ticketsError: null });
+
+    try {
+      const response = await fetch(
+        `/api/tickets/${ticketId}/complete`,
+        {
+          method: "PUT",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Cannot change status ticket ${ticketId}: ${response.statusText}`
+        );
+      }
+
+      get().fetchTickets();
+    } catch (error: any) {
+      set({ ticketsError: error.message });
+    } finally {
+      set({ isLoadingTickets: false });
+    }
+  },
 });
