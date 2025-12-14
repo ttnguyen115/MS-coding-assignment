@@ -48,7 +48,7 @@ export const createUserSlice: StateCreator<
   },
 
   fetchUserById: async (userId: User["id"]) => {
-    set({ isLoadingTickets: true, ticketsError: null });
+    set({ isLoadingUsers: true, usersError: null });
 
     try {
       const response = await fetch(`/api/users/${userId}`);
@@ -60,9 +60,9 @@ export const createUserSlice: StateCreator<
       const user: User = await response.json();
       set({ activeUser: user });
     } catch (error: any) {
-      set({ ticketsError: error.message });
+      set({ usersError: error.message });
     } finally {
-      set({ isLoadingTickets: false });
+      set({ isLoadingUsers: false });
     }
   },
 });

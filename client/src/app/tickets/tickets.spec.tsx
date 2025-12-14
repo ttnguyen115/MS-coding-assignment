@@ -154,7 +154,6 @@ describe("Tickets", () => {
 
     render(TestComponent);
 
-    // Should show a select box with Unassigned option
     const selectBox = screen.getByRole('combobox');
     expect(selectBox).toBeInTheDocument();
     expect(screen.getByText(/Fix bug/)).toBeInTheDocument();
