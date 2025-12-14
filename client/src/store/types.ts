@@ -1,14 +1,16 @@
 import { Ticket, User } from "@acme/shared-models";
 
 export type TicketSlice = {
-  tickets: Ticket[];
+  tickets: Record<string, Ticket>;
+  ticketIds: Ticket["id"][];
   isLoading: boolean;
   error: string | null;
   fetchTickets: () => void;
 };
 
 export type UserSlice = {
-  users: User[];
+  users: Record<string, User>;
+  userIds: User["id"][];
   isLoading: boolean;
   error: string | null;
   fetchUsers: () => void;

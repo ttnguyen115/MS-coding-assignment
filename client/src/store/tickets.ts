@@ -9,7 +9,8 @@ export const createTicketSlice: StateCreator<
   [],
   TicketSlice
 > = (set) => ({
-  tickets: [],
+  tickets: {},
+  ticketIds: [],
   isLoading: false,
   error: null,
 
@@ -24,7 +25,17 @@ export const createTicketSlice: StateCreator<
       }
 
       const tickets: Ticket[] = await response.json();
-      set({ tickets, isLoading: false });
+      set((state) => {
+        state.ticketIds.length = 0;
+        Object.keys(state.tickets).forEach((key) => delete state.tickets[key]);
+      
+        tickets.forEach((ticket) => {
+          state.ticketIds.push(ticket.id);
+          state.tickets[ticket.id] = ticket;
+        });
+        
+        state.isLoading = false;
+      });
     } catch (error: any) {
       set({ error: error.message });
     } finally {

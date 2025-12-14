@@ -9,7 +9,8 @@ export const createUserSlice: StateCreator<
   [],
   UserSlice
 > = (set) => ({
-  users: [],
+  users: {},
+  userIds: [],
   isLoading: false,
   error: null,
 
@@ -24,7 +25,18 @@ export const createUserSlice: StateCreator<
       }
 
       const users: User[] = await response.json();
-      set({ users, isLoading: false });
+
+      set((state) => {
+        state.userIds.length = 0;
+        Object.keys(state.users).forEach((key) => delete state.users[key]);
+      
+        users.forEach((user) => {
+          state.userIds.push(user.id);
+          state.users[user.id] = user;
+        });
+        
+        state.isLoading = false;
+      });
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
     }
