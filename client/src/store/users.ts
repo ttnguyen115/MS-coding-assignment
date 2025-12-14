@@ -11,11 +11,11 @@ export const createUserSlice: StateCreator<
 > = (set) => ({
   users: {},
   userIds: [],
-  isLoading: false,
-  error: null,
+  isLoadingUsers: false,
+  usersError: null,
 
   fetchUsers: async () => {
-    set({ isLoading: true, error: null });
+    set({ isLoadingUsers: true, usersError: null });
 
     try {
       const response = await fetch("/api/users");
@@ -29,16 +29,16 @@ export const createUserSlice: StateCreator<
       set((state) => {
         state.userIds.length = 0;
         Object.keys(state.users).forEach((key) => delete state.users[key]);
-      
+
         users.forEach((user) => {
           state.userIds.push(user.id);
           state.users[user.id] = user;
         });
-        
-        state.isLoading = false;
       });
     } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      set({ usersError: error.message });
+    } finally {
+      set({ isLoadingUsers: false });
     }
   },
 });

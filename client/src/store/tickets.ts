@@ -11,11 +11,11 @@ export const createTicketSlice: StateCreator<
 > = (set) => ({
   tickets: {},
   ticketIds: [],
-  isLoading: false,
-  error: null,
+  isLoadingTickets: false,
+  ticketsError: null,
 
   fetchTickets: async () => {
-    set({ isLoading: true, error: null });
+    set({ isLoadingTickets: true, ticketsError: null });
 
     try {
       const response = await fetch("/api/tickets");
@@ -28,18 +28,16 @@ export const createTicketSlice: StateCreator<
       set((state) => {
         state.ticketIds.length = 0;
         Object.keys(state.tickets).forEach((key) => delete state.tickets[key]);
-      
+
         tickets.forEach((ticket) => {
           state.ticketIds.push(ticket.id);
           state.tickets[ticket.id] = ticket;
         });
-        
-        state.isLoading = false;
       });
     } catch (error: any) {
-      set({ error: error.message });
+      set({ ticketsError: error.message });
     } finally {
-      set({ isLoading: false });
+      set({ isLoadingTickets: false });
     }
   },
 });

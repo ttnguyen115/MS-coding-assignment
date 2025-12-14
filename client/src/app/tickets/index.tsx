@@ -1,5 +1,6 @@
 import { Ticket } from "@acme/shared-models";
 import Button from "client/src/components/Button";
+import TicketCard from "client/src/components/TicketCard";
 import useGlobalStore from "client/src/store";
 import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/shallow";
@@ -12,7 +13,7 @@ export interface TicketsProps {
 type FilterStatus = "all" | "completed" | "incomplete";
 
 function Tickets() {
-  const { tickets, users, ticketIds, fetchTickets, fetchUsers } =
+  const { tickets, users, ticketIds, fetchTickets, fetchUsers, isLoadingTickets } =
     useGlobalStore(
       useShallow((state) => ({
         tickets: state.tickets,
@@ -20,6 +21,7 @@ function Tickets() {
         ticketIds: state.ticketIds,
         fetchTickets: state.fetchTickets,
         fetchUsers: state.fetchUsers,
+        isLoadingTickets: state.isLoadingTickets,
       }))
     );
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
@@ -30,11 +32,9 @@ function Tickets() {
 
       if (!ticket) return false;
 
-      if (filterStatus === "completed") {
-        return ticket.completed === true;
-      } else if (filterStatus === "incomplete") {
-        return ticket.completed === false;
-      }
+      if (filterStatus === "all") return true;
+      if (filterStatus === "completed") return ticket.completed === true;
+      if (filterStatus === "incomplete") return ticket.completed === false;
 
       return true;
     });
@@ -44,7 +44,7 @@ function Tickets() {
     setFilterStatus(status);
   };
 
-  const renderFilterGroup = (
+  const renderFilterGroup = () => (
     <div className={styles["filterGroup"]}>
       <Button
         isActive={filterStatus === "all"}
@@ -67,6 +67,45 @@ function Tickets() {
     </div>
   );
 
+  const renderContent = () => {
+    if (isLoadingTickets) {
+      return (
+        <div className={styles["ticketList"]}>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <TicketCard.Skeleton key={index} />
+          ))}
+        </div>
+      );
+    }
+
+    if (filteredTicketIds.length === 0) {
+      return (
+        <div className={styles["emptyState"]}>
+          <p>No tickets available</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles["ticketList"]}>
+        {filteredTicketIds.map((id) => {
+          const ticket = tickets[id];
+          const assigneeName = ticket.assigneeId
+            ? users[ticket.assigneeId]?.name ?? "Unknown"
+            : "Unassigned";
+
+          return (
+            <TicketCard
+              key={ticket.id}
+              ticket={ticket}
+              assigneeName={assigneeName}
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
   useEffect(() => {
     Promise.allSettled([fetchTickets(), fetchUsers()]);
   }, []);
@@ -75,51 +114,9 @@ function Tickets() {
     <div className={styles["container"]}>
       <div className={styles["header"]}>
         <h1 className={styles["title"]}>Tickets</h1>
-        {renderFilterGroup}
+        {renderFilterGroup()}
       </div>
-
-      {filteredTicketIds.length > 0 ? (
-        <div className={styles["ticketList"]}>
-          {filteredTicketIds.map((id) => {
-            const ticket = tickets[id];
-            const assigneeName = ticket.assigneeId
-              ? users[ticket.assigneeId]?.name ?? "Unknown"
-              : "Unassigned";
-
-            return (
-              <div key={ticket.id} className={styles["ticketCard"]}>
-                <div className={styles["ticketHeader"]}>
-                  <span className={styles["ticketId"]}>#{ticket.id}</span>
-                  <span
-                    className={`${styles["statusBadge"]} ${
-                      ticket.completed
-                        ? styles["completed"]
-                        : styles["incomplete"]
-                    }`}
-                  >
-                    {ticket.completed ? "Completed" : "Incomplete"}
-                  </span>
-                </div>
-                <p className={styles["ticketDescription"]}>
-                  {ticket.description}
-                </p>
-                <div className={styles["ticketFooter"]}>
-                  <div className={styles["assignee"]}>
-                    <span className={styles["assigneeLabel"]}>Assignee:</span>
-                    <span className={styles["assigneeName"]}>
-                      {assigneeName}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className={styles["emptyState"]}>
-          <p>No tickets available</p>
-        </div>
-      )}
+      {renderContent()}
     </div>
   );
 }
