@@ -63,13 +63,15 @@ function TicketDetail() {
   const fetchUserById = useGlobalStore((state) => state.fetchUserById);
 
   useEffect(() => {
+    // flag to prevent race conditions
     let isCurrent = true;
+
     const ticketId = Number(id);
     const existingTicket = tickets[ticketId];
 
-    const loadTicket = () => {
-      if (!existingTicket) {
-        fetchTicketById(ticketId);
+    const loadTicket = async () => {
+      if (!existingTicket && isCurrent) {
+        await fetchTicketById(ticketId);
       } else if (isCurrent && (!activeTicket || activeTicket.id !== ticketId)) {
         setActiveTicket(existingTicket);
       }
@@ -83,14 +85,15 @@ function TicketDetail() {
   }, [id, tickets]);
 
   useEffect(() => {
+    // flag to prevent race conditions
     let isCurrent = true;
 
-    const loadUser = () => {
+    const loadUser = async () => {
       if (activeTicket?.assigneeId && isCurrent) {
         const existingUser = users[activeTicket.assigneeId];
 
         if (!existingUser) {
-          fetchUserById(activeTicket.assigneeId);
+          await fetchUserById(activeTicket.assigneeId);
         } else if (
           isCurrent &&
           (!activeUser || activeUser.id !== activeTicket.assigneeId)

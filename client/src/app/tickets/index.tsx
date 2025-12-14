@@ -15,7 +15,6 @@ type FilterStatus = "all" | "completed" | "incomplete";
 
 function Tickets() {
   const tickets = useGlobalStore((state) => state.tickets);
-  const users = useGlobalStore((state) => state.users);
   const ticketIds = useGlobalStore((state) => state.ticketIds);
   const isLoadingTickets = useGlobalStore((state) => state.isLoadingTickets);
 
@@ -106,17 +105,8 @@ function Tickets() {
       <div className={styles["ticketList"]}>
         {filteredTicketIds.map((id) => {
           const ticket = tickets[id];
-          const assigneeName = ticket.assigneeId
-            ? users[ticket.assigneeId]?.name ?? "Unknown"
-            : "Unassigned";
 
-          return (
-            <TicketCard
-              key={ticket.id}
-              ticket={ticket}
-              assigneeName={assigneeName}
-            />
-          );
+          return <TicketCard key={ticket.id} ticket={ticket} />;
         })}
       </div>
     );

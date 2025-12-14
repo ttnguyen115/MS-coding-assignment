@@ -6,10 +6,11 @@ import styles from "./ticketCard.module.css";
 
 export interface TicketCardProps {
   ticket: Ticket;
-  assigneeName: string;
 }
 
-function TicketCard({ ticket, assigneeName }: TicketCardProps) {
+const UNASSIGNED_OPTION = 0;
+
+function TicketCard({ ticket }: TicketCardProps) {
   const navigate = useNavigate();
 
   const users = useGlobalStore((state) => state.users);
@@ -22,8 +23,12 @@ function TicketCard({ ticket, assigneeName }: TicketCardProps) {
   const assignTicket = useGlobalStore((state) => state.assignTicket);
   const unassignTicket = useGlobalStore((state) => state.unassignTicket);
 
-  const isUpdatingStatus = isUpdatingTicket?.ticketId === ticket.id && isUpdatingTicket?.field === 'status';
-  const isUpdatingAssignee = isUpdatingTicket?.ticketId === ticket.id && isUpdatingTicket?.field === 'assignee';
+  const isUpdatingStatus =
+    isUpdatingTicket?.ticketId === ticket.id &&
+    isUpdatingTicket?.field === "status";
+  const isUpdatingAssignee =
+    isUpdatingTicket?.ticketId === ticket.id &&
+    isUpdatingTicket?.field === "assignee";
 
   const handleClick = () => {
     navigate(`/${ticket.id}`);
@@ -42,8 +47,7 @@ function TicketCard({ ticket, assigneeName }: TicketCardProps) {
     e.stopPropagation();
     const userId = parseInt(e.target.value);
 
-    // "Unassigned" option
-    if (userId === 0) {
+    if (userId === UNASSIGNED_OPTION) {
       await unassignTicket(ticket.id);
     } else {
       await assignTicket(ticket.id, userId);
@@ -68,9 +72,7 @@ function TicketCard({ ticket, assigneeName }: TicketCardProps) {
           <span className={styles["checkboxLabel"]}>
             {ticket.completed ? "Completed" : "Incomplete"}
           </span>
-          {isUpdatingStatus && (
-            <span className={styles["spinner"]}></span>
-          )}
+          {isUpdatingStatus && <span className={styles["spinner"]}></span>}
         </label>
       </div>
       <p className={styles["ticketDescription"]}>{ticket.description}</p>
@@ -93,9 +95,7 @@ function TicketCard({ ticket, assigneeName }: TicketCardProps) {
               </option>
             ))}
           </select>
-          {isUpdatingAssignee && (
-            <span className={styles["spinner"]}></span>
-          )}
+          {isUpdatingAssignee && <span className={styles["spinner"]}></span>}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { ButtonHTMLAttributes } from "react";
-import styles from "./Button.module.css";
+import styles from "./button.module.css";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "small" | "medium" | "large";

@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { validateDescription } from "../../utils/sanitize";
 import Button from "../Button";
 import styles from "./addTicketModal.module.css";
@@ -21,6 +21,8 @@ function AddTicketModal({
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
 
+  const isMountedRef = useRef(true);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -33,10 +35,16 @@ function AddTicketModal({
     try {
       setError("");
       await onSubmit(description);
-      setDescription("");
-      onClose();
+
+      // only update state if component is still mounted
+      if (isMountedRef.current) {
+        setDescription("");
+        onClose();
+      }
     } catch (err: any) {
-      setError(err.message || "Failed to create ticket");
+      if (isMountedRef.current) {
+        setError(err.message || "Failed to create ticket");
+      }
     }
   };
 
@@ -45,6 +53,13 @@ function AddTicketModal({
     setError("");
     onClose();
   };
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   if (!isOpen) return null;
 
