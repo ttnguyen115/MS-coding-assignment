@@ -1,6 +1,7 @@
 import { Ticket } from "@acme/shared-models";
 import useGlobalStore from "client/src/store";
 import { useEffect, useMemo, useState } from "react";
+import { useShallow } from "zustand/shallow";
 import styles from "./tickets.module.css";
 
 export interface TicketsProps {
@@ -11,7 +12,15 @@ type FilterStatus = "all" | "completed" | "incomplete";
 
 export function Tickets() {
   const { tickets, users, ticketIds, fetchTickets, fetchUsers } =
-    useGlobalStore();
+    useGlobalStore(
+      useShallow((state) => ({
+        tickets: state.tickets,
+        users: state.users,
+        ticketIds: state.ticketIds,
+        fetchTickets: state.fetchTickets,
+        fetchUsers: state.fetchUsers,
+      }))
+    );
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
 
   const filteredTicketIds = useMemo(() => {
