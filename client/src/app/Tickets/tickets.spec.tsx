@@ -5,8 +5,6 @@ import { MemoryRouter } from "react-router-dom";
 
 import Tickets from ".";
 
-jest.mock("client/src/store");
-
 const mockUseGlobalStore = useGlobalStore as jest.MockedFunction<
   typeof useGlobalStore
 >;
@@ -35,7 +33,7 @@ describe("Tickets", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseGlobalStore.mockImplementation((selector: any) => {
-      if (typeof selector === 'function') {
+      if (typeof selector === "function") {
         return selector(defaultStoreState);
       }
       return defaultStoreState;
@@ -72,7 +70,7 @@ describe("Tickets", () => {
     };
 
     mockUseGlobalStore.mockImplementation((selector: any) => {
-      if (typeof selector === 'function') {
+      if (typeof selector === "function") {
         return selector(testState);
       }
       return testState;
@@ -82,10 +80,10 @@ describe("Tickets", () => {
 
     expect(screen.getByText(/Fix bug/)).toBeInTheDocument();
     expect(screen.getByText(/Add feature/)).toBeInTheDocument();
-    
-    const selectBoxes = screen.getAllByRole('combobox');
+
+    const selectBoxes = screen.getAllByRole("combobox");
     expect(selectBoxes.length).toBeGreaterThan(0);
-    
+
     expect(screen.getAllByText(/Unassigned/).length).toBeGreaterThan(0);
   });
 
@@ -114,7 +112,7 @@ describe("Tickets", () => {
     };
 
     mockUseGlobalStore.mockImplementation((selector: any) => {
-      if (typeof selector === 'function') {
+      if (typeof selector === "function") {
         return selector(testState);
       }
       return testState;
@@ -146,7 +144,7 @@ describe("Tickets", () => {
     };
 
     mockUseGlobalStore.mockImplementation((selector: any) => {
-      if (typeof selector === 'function') {
+      if (typeof selector === "function") {
         return selector(testState);
       }
       return testState;
@@ -154,7 +152,7 @@ describe("Tickets", () => {
 
     render(TestComponent);
 
-    const selectBox = screen.getByRole('combobox');
+    const selectBox = screen.getByRole("combobox");
     expect(selectBox).toBeInTheDocument();
     expect(screen.getByText(/Fix bug/)).toBeInTheDocument();
   });

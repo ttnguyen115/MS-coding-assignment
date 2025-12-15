@@ -3,8 +3,6 @@ import useGlobalStore from "client/src/store";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import TicketDetail from "./index";
 
-jest.mock("client/src/store");
-
 const mockUseGlobalStore = useGlobalStore as jest.MockedFunction<
   typeof useGlobalStore
 >;

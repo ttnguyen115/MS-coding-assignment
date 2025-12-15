@@ -51,6 +51,9 @@ function TicketDetailSkeleton() {
 
 const UNASSIGNED_OPTION = 0;
 
+// In this TicketDetail page, we handle 2 cases
+//  1. Redirect from Tickets page, we have data from store => get it from global store
+//  2. Directly paste or type URL to access one ticket detail => get ID  and call APIs
 function TicketDetail() {
   const { id } = useParams<{ id: string }>();
 

@@ -2,18 +2,18 @@ import styles from "./statusCheckbox.module.css";
 
 interface StatusCheckboxProps {
   checked: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   disabled?: boolean;
   isLoading?: boolean;
   className?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 function StatusCheckbox({
   checked,
-  onChange,
   disabled = false,
   isLoading = false,
   className = "",
+  onChange,
 }: StatusCheckboxProps) {
   return (
     <label className={`${styles["container"]} ${className}`}>

@@ -78,6 +78,7 @@ function Tickets() {
   );
 
   const renderContent = () => {
+    // fetching tickets: when first page load or redirect from ticket detail paeg
     if (isLoadingTickets) {
       return (
         <div className={styles["ticketList"]}>
@@ -88,6 +89,7 @@ function Tickets() {
       );
     }
 
+    // fetching completed but have no any tickets
     if (filteredTicketIds.length === 0) {
       return (
         <NotFound

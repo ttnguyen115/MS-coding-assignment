@@ -26,27 +26,6 @@
   color: #2563eb;
 }
 
-.actions {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.iconButton {
-  background: none;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-size: 1.25rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.iconButton:hover {
-  border-color: #3b82f6;
-  transform: scale(1.05);
-}
-
 .card {
   background: #fff;
   border: 1px solid #e5e7eb;
@@ -69,25 +48,6 @@
   font-weight: 700;
   color: #1a1a1a;
   margin: 0;
-}
-
-.statusBadge {
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-.statusBadge.completed {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.statusBadge.incomplete {
-  background-color: #fef3c7;
-  color: #92400e;
 }
 
 .section {
@@ -134,40 +94,6 @@
 
 .select {
   width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-family: inherit;
-  background-color: #fff;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.select:focus {
-  outline: none;
-  border-color: #3b82f6;
-}
-
-.control {
-  display: flex;
-  align-items: center;
-}
-
-.control .container,
-.control .select {
-  font-size: 1rem;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .container {
-    padding: 1.5rem 1rem;
-  }
-
-  .card {
-    padding: 1.5rem;
-  }
 
   .title {
     font-size: 1.5rem;
@@ -176,10 +102,6 @@
   .cardHeader {
     flex-direction: column;
     gap: 1rem;
-  }
-
-  .statusBadge {
-    align-self: flex-start;
   }
 }
 
@@ -198,17 +120,11 @@
     gap: 1rem;
   }
 
-  .actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
   .title {
     font-size: 1.25rem;
   }
 }
 
-/* Skeleton Loading Styles */
 .skeleton {
   background: #fff;
   border: 1px solid #e5e7eb;

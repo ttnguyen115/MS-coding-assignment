@@ -5,11 +5,11 @@ interface AssigneeSelectProps {
   value: number | null;
   users: Record<string, User>;
   userIds: number[];
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   disabled?: boolean;
   isLoading?: boolean;
   showLabel?: boolean;
   className?: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
 const UNASSIGNED_OPTION = 0;
@@ -18,11 +18,11 @@ function AssigneeSelect({
   value,
   users,
   userIds,
-  onChange,
   disabled = false,
   isLoading = false,
   showLabel = false,
   className = "",
+  onChange,
 }: AssigneeSelectProps) {
   return (
     <div className={`${styles["container"]} ${className}`}>

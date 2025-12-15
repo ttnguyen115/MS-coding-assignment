@@ -1,11 +1,11 @@
 import DOMPurify from "dompurify";
 
-export function sanitizeDescription(dirty: string): string {
-  if (!dirty || typeof dirty !== "string") {
+export function sanitizeDescription(unsanitizedDesc: string): string {
+  if (!unsanitizedDesc || typeof unsanitizedDesc !== "string") {
     return "";
   }
 
-  const clean = DOMPurify.sanitize(dirty, {
+  const clean = DOMPurify.sanitize(unsanitizedDesc, {
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
     KEEP_CONTENT: true,
@@ -14,10 +14,12 @@ export function sanitizeDescription(dirty: string): string {
   return clean.trim();
 }
 
-export function validateDescription(description: string): {
+type ValidationResult = {
   isValid: boolean;
   error?: string;
-} {
+}
+
+export function validateDescription(description: string): ValidationResult {
   if (!description || typeof description !== "string") {
     return { isValid: false, error: "Description is required" };
   }
