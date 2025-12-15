@@ -1,6 +1,8 @@
 import { Ticket } from "@acme/shared-models";
 import useGlobalStore from "client/src/store";
 import { useNavigate } from "react-router-dom";
+import AssigneeSelect from "../AssigneeSelect";
+import StatusCheckbox from "../StatusCheckbox";
 import skeletonStyles from "./skeleton.module.css";
 import styles from "./ticketCard.module.css";
 
@@ -58,44 +60,27 @@ function TicketCard({ ticket }: TicketCardProps) {
     <div className={styles["ticketCard"]} onClick={handleClick}>
       <div className={styles["ticketHeader"]}>
         <span className={styles["ticketId"]}>#{ticket.id}</span>
-        <label
-          className={styles["checkboxContainer"]}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <input
-            type="checkbox"
+        <div onClick={(e) => e.stopPropagation()}>
+          <StatusCheckbox
             checked={ticket.completed}
             onChange={handleCheckboxChange}
-            className={styles["checkbox"]}
             disabled={isUpdatingStatus}
+            isLoading={isUpdatingStatus}
           />
-          <span className={styles["checkboxLabel"]}>
-            {ticket.completed ? "Completed" : "Incomplete"}
-          </span>
-          {isUpdatingStatus && <span className={styles["spinner"]}></span>}
-        </label>
+        </div>
       </div>
       <p className={styles["ticketDescription"]}>{ticket.description}</p>
       <div className={styles["ticketFooter"]}>
-        <div
-          className={styles["assignee"]}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <span className={styles["assigneeLabel"]}>Assignee:</span>
-          <select
-            value={ticket.assigneeId || 0}
+        <div onClick={(e) => e.stopPropagation()}>
+          <AssigneeSelect
+            value={ticket.assigneeId}
+            users={users}
+            userIds={userIds}
             onChange={handleAssigneeChange}
-            className={styles["assigneeSelect"]}
             disabled={isUpdatingAssignee}
-          >
-            <option value={0}>Unassigned</option>
-            {userIds.map((userId) => (
-              <option key={userId} value={userId}>
-                {users[userId]?.name}
-              </option>
-            ))}
-          </select>
-          {isUpdatingAssignee && <span className={styles["spinner"]}></span>}
+            isLoading={isUpdatingAssignee}
+            showLabel={true}
+          />
         </div>
       </div>
     </div>

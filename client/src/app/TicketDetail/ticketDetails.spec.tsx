@@ -26,6 +26,7 @@ const defaultStoreState = {
   activeUser: null,
   isLoadingTickets: false,
   isLoadingUsers: false,
+  isUpdatingTicket: null,
   ticketsError: null,
   usersError: null,
   fetchTickets: jest.fn(),
@@ -34,13 +35,16 @@ const defaultStoreState = {
   fetchUsers: jest.fn(),
   fetchUserById: jest.fn(),
   setActiveUser: jest.fn(),
+  updateTicketStatus: jest.fn(),
+  assignTicket: jest.fn(),
+  unassignTicket: jest.fn(),
 };
 
 describe("TicketDetail", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseGlobalStore.mockImplementation((selector: any) => {
-      if (typeof selector === 'function') {
+      if (typeof selector === "function") {
         return selector(defaultStoreState);
       }
       return defaultStoreState;
@@ -71,11 +75,12 @@ describe("TicketDetail", () => {
       users: {
         2: user,
       },
+      userIds: [2],
       activeUser: user,
     };
 
     mockUseGlobalStore.mockImplementation((selector: any) => {
-      if (typeof selector === 'function') {
+      if (typeof selector === "function") {
         return selector(testState);
       }
       return testState;
@@ -84,7 +89,9 @@ describe("TicketDetail", () => {
     render(TestComponent());
 
     expect(screen.getByText(/Fix bug in login/)).toBeInTheDocument();
-    expect(screen.getByText(/Trung Nguyen/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: /Trung Nguyen/ })
+    ).toBeInTheDocument();
     expect(screen.getByText(/Incomplete/)).toBeInTheDocument();
   });
 
@@ -97,7 +104,7 @@ describe("TicketDetail", () => {
     };
 
     mockUseGlobalStore.mockImplementation((selector: any) => {
-      if (typeof selector === 'function') {
+      if (typeof selector === "function") {
         return selector(testState);
       }
       return testState;

@@ -1,4 +1,6 @@
+import AssigneeSelect from "client/src/components/AssigneeSelect";
 import NotFound from "client/src/components/NotFound";
+import StatusCheckbox from "client/src/components/StatusCheckbox";
 import useGlobalStore from "client/src/store";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -47,20 +49,29 @@ function TicketDetailSkeleton() {
   );
 }
 
+const UNASSIGNED_OPTION = 0;
+
 function TicketDetail() {
   const { id } = useParams<{ id: string }>();
 
   const tickets = useGlobalStore((state) => state.tickets);
   const users = useGlobalStore((state) => state.users);
+  const userIds = useGlobalStore((state) => state.userIds);
   const activeTicket = useGlobalStore((state) => state.activeTicket);
   const activeUser = useGlobalStore((state) => state.activeUser);
   const isLoadingTickets = useGlobalStore((state) => state.isLoadingTickets);
+  const isUpdatingTicket = useGlobalStore((state) => state.isUpdatingTicket);
   const ticketsError = useGlobalStore((state) => state.ticketsError);
 
   const setActiveTicket = useGlobalStore((state) => state.setActiveTicket);
   const setActiveUser = useGlobalStore((state) => state.setActiveUser);
   const fetchTicketById = useGlobalStore((state) => state.fetchTicketById);
   const fetchUserById = useGlobalStore((state) => state.fetchUserById);
+  const updateTicketStatus = useGlobalStore(
+    (state) => state.updateTicketStatus
+  );
+  const assignTicket = useGlobalStore((state) => state.assignTicket);
+  const unassignTicket = useGlobalStore((state) => state.unassignTicket);
 
   useEffect(() => {
     // flag to prevent race conditions
@@ -132,9 +143,30 @@ function TicketDetail() {
     );
   }
 
-  const assigneeName = activeTicket.assigneeId
-    ? activeUser?.name ?? "Unknown"
-    : "Unassigned";
+  const isUpdatingStatus =
+    isUpdatingTicket?.ticketId === activeTicket.id &&
+    isUpdatingTicket?.field === "status";
+  const isUpdatingAssignee =
+    isUpdatingTicket?.ticketId === activeTicket.id &&
+    isUpdatingTicket?.field === "assignee";
+
+  const handleCheckboxChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    await updateTicketStatus(activeTicket.id, e.target.checked);
+  };
+
+  const handleAssigneeChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const userId = parseInt(e.target.value);
+
+    if (userId === UNASSIGNED_OPTION) {
+      await unassignTicket(activeTicket.id);
+    } else {
+      await assignTicket(activeTicket.id, userId);
+    }
+  };
 
   return (
     <TicketDetailLayout>
@@ -150,14 +182,26 @@ function TicketDetail() {
 
         <div className={styles["section"]}>
           <label className={styles["label"]}>Assignee</label>
-          <p className={styles["text"]}>{assigneeName}</p>
+          <AssigneeSelect
+            value={activeTicket.assigneeId}
+            users={users}
+            userIds={userIds}
+            onChange={handleAssigneeChange}
+            disabled={isUpdatingAssignee}
+            isLoading={isUpdatingAssignee}
+            className={styles["control"]}
+          />
         </div>
 
         <div className={styles["section"]}>
           <label className={styles["label"]}>Status</label>
-          <p className={styles["text"]}>
-            {activeTicket.completed ? "Completed" : "Incomplete"}
-          </p>
+          <StatusCheckbox
+            checked={activeTicket.completed}
+            onChange={handleCheckboxChange}
+            disabled={isUpdatingStatus}
+            isLoading={isUpdatingStatus}
+            className={styles["control"]}
+          />
         </div>
       </div>
     </TicketDetailLayout>

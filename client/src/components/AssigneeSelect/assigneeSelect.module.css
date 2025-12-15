@@ -1,0 +1,50 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.select {
+  font-size: 0.875rem;
+  color: #1f2937;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+}
+
+.select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.select:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: #f9fafb;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
